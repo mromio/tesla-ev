@@ -26,11 +26,19 @@ def haversine(lat1, lon1, lat2, lon2):
 @st.cache_data
 def load_data():
     """
-    Load data from JSON cache.
+    Load Tesla Supercharger data from cache if available,
+    otherwise load from CSV and create the cache.
     """
-    with open("cache_superchargers.json", "r") as f:
-        data = json.load(f)
-    return data
+    try:
+        with open("cache_superchargers.json", "r") as f:
+            data = json.load(f)
+            return data
+    except FileNotFoundError:
+        df = pd.read_csv("merged_ev_supercharger_data.csv")
+        data = df.to_dict(orient="records")
+        with open("cache_superchargers.json", "w") as f:
+            json.dump(data, f, indent=2)
+        return data
 
 
 @st.cache_data
